@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 public class OrderRepository {
@@ -85,5 +86,31 @@ public class OrderRepository {
             assigned+=order.size();
         }
         return allOrders-assigned;
+    }
+
+    // Deleting Partner by Id and Un-assigning all his orders
+    public void deletePartner(String partnerId){
+        if(del_part_db.containsKey(partnerId)){
+            del_part_db.remove(partnerId);
+        }
+        if(pair_db.containsKey(partnerId)){
+            pair_db.remove(partnerId);
+        }
+    }
+
+    // Deleting Order by ID from ORders and From Pair DB
+    public void deleteOrder(String orderId){
+        if(order_db.containsKey(orderId)) {
+            order_db.remove(orderId);
+        }
+        for(ArrayList<String> orders : pair_db.values()){
+            for (int i = 0; i < orders.size(); i++) {
+                if(orders.get(i).equals(orderId)){
+                    orders.remove(i);
+                    break;
+                }
+            }
+        }
+
     }
 }
