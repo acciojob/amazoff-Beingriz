@@ -37,6 +37,8 @@ public class OrderRepository {
             }
             orders.add(orderId);
             pair_db.put(partnerId,orders);
+            DeliveryPartner partner = getPartner(partnerId);
+            partner.setNumberOfOrders(countOrdersbyPartner(partnerId));
         }
     }
 
