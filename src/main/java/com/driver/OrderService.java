@@ -52,6 +52,26 @@ public class OrderService {
         return OR.allOrders();
     }
 
+
+    // count of orders left after delivery Time
+    public int getOrdersLeftAfterGivenTimeByPartnerId(String deliveryTime, String partnerId){
+        String[] time = deliveryTime.split(":");
+        int newTime =  Integer.parseInt(time[0])*60 + Integer.parseInt(time[1]);
+        return OR.getOrdersLeftAfterGivenTimeByPartnerId(newTime, partnerId);
+    }
+
+
+    // Time of Last Order by Partner Id
+    public String getLastDeliveryTimeByPartnerId(String partnerId){
+        int time = OR.getLastDeliveryTimeByPartnerId(partnerId);
+        String HH = String.valueOf(time/60);
+        String MM = String.valueOf(time%60);
+
+        // Appending Zero for Single No.
+        if(HH.length()<2) HH = '0'+HH;
+        if(MM.length()<2) MM = '0'+MM;
+        return HH+':'+MM;
+    }
     // Count of Unassigned Orders
     public int unAssignedOrders(){
         return OR.unAssignedOrders();

@@ -14,6 +14,9 @@ public class OrderRepository {
     // Creating Delivery Partner Database with Partner Id
     HashMap<String, DeliveryPartner> del_part_db = new HashMap<>();
 
+
+    // Partner and Order Assignment
+    Map<String , String> orderPartnerDb = new HashMap<>();
     // Creating Pari Database
     HashMap<String, ArrayList<String>> pair_db = new HashMap<>();
 
@@ -24,21 +27,24 @@ public class OrderRepository {
 
     // Addning new Delivery Partner
     public void addPartner(String partnerId){
-        DeliveryPartner deliveryPartner = new DeliveryPartner(partnerId);
-        del_part_db.put(deliveryPartner.getId(),deliveryPartner);
+        del_part_db.put(partnerId,new DeliveryPartner(partnerId));
     }
 
     //Adding pair of Order and Delivery Partner by their ID
     public void addOrderPartnerPair(String orderId, String partnerId){
         if(order_db.containsKey(orderId) && del_part_db.containsKey(partnerId)){
+            orderPartnerDb.put(orderId,partnerId); // Assigning 1 order to 1 partner only.
+
             ArrayList<String>  orders = new ArrayList();
             if(pair_db.containsKey(partnerId)){
                 orders = pair_db.get(partnerId);
             }
             orders.add(orderId);
             pair_db.put(partnerId,orders);
-            DeliveryPartner partner = getPartner(partnerId);
-            partner.setNumberOfOrders(countOrdersbyPartner(partnerId));
+
+            // Increment the No of orders for that partner
+            DeliveryPartner partner = del_part_db.get(partnerId);
+            partner.setNumberOfOrders(orders.size());
         }
     }
 
@@ -55,20 +61,13 @@ public class OrderRepository {
 
     // Display Count of Orders by Partner Id
     public int countOrdersbyPartner(String partnerId){
-        ArrayList<String> orders = new ArrayList<>();
-        if(pair_db.containsKey(partnerId)){
-            orders = new ArrayList<>(pair_db.get(partnerId));
-        }
-        return orders.size();
+
+        return pair_db.get(partnerId).size();
     }
 
     //Displaying List of Orders by Partner Id
     public ArrayList<String> ordersByPartnerID(String partnerId){
-        ArrayList<String> orders = new ArrayList<>();
-        if(pair_db.containsKey(partnerId)){
-            orders = pair_db.get(partnerId);
-        }
-        return orders;
+        return pair_db.get(partnerId);
     }
 
     // Displaying List of Orders
@@ -80,39 +79,53 @@ public class OrderRepository {
         return orders;
     }
 
+
+
     // Display count of Unassigned Orders
     public int unAssignedOrders(){
-        int allOrders = order_db.size();
-        int assigned = 0;
-        for (ArrayList<String> order: pair_db.values()) {
-            assigned+=order.size();
+        return order_db.size()- orderPartnerDb.size();
+    }
+
+    // count of Orders left after Delivery tIme
+    public  int getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId){
+        int count = 0;
+        // Get the list of Orders of this Partner
+        ArrayList<String> orders = pair_db.get(partnerId);
+        for (String orderId: orders ) {
+            int deliveryTime = order_db.get(orderId).getDeliveryTime();
+            if(deliveryTime > time) count++;
         }
-        return allOrders-assigned;
+        return count;
+    }
+
+    // Last order time by Partner Id
+    public int getLastDeliveryTimeByPartnerId(String partnerId){
+        int maxTime = 0;
+        ArrayList<String> orders = pair_db.get(partnerId);
+        for(String orderId : orders){
+            int currTime = order_db.get(orderId).getDeliveryTime();
+            maxTime = Math.max(currTime, maxTime);
+        }
+        return maxTime;
     }
 
     // Deleting Partner by Id and Un-assigning all his orders
     public void deletePartner(String partnerId){
-        if(del_part_db.containsKey(partnerId)){
-            del_part_db.remove(partnerId);
-        }
-        if(pair_db.containsKey(partnerId)){
-            pair_db.remove(partnerId);
-        }
+       del_part_db.remove(partnerId);
+       ArrayList<String> orders = pair_db.get(partnerId);
+       pair_db.remove(partnerId);
+       for(String orderId : orders){
+           orderPartnerDb.remove(orderId);
+       }
     }
 
     // Deleting Order by ID from ORders and From Pair DB
     public void deleteOrder(String orderId){
-        if(order_db.containsKey(orderId)) {
-            order_db.remove(orderId);
-        }
-        for(ArrayList<String> orders : pair_db.values()){
-            for (int i = 0; i < orders.size(); i++) {
-                if(orders.get(i).equals(orderId)){
-                    orders.remove(i);
-                    break;
-                }
-            }
-        }
+      order_db.remove(orderId);
+      String partnerId = orderPartnerDb.get(orderId);
+      orderPartnerDb.remove(orderId);
+      pair_db.get(partnerId).remove(orderId);
+      del_part_db.get(partnerId).setNumberOfOrders(pair_db.get(partnerId).size());
 
     }
 }
