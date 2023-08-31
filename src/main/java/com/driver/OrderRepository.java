@@ -12,7 +12,7 @@ public class OrderRepository {
     HashMap<String, Order> order_db = new HashMap<>();
 
     // Creating Delivery Partner Database with Partner Id
-    HashMap<String, DeliveryPartner> del_part_db = new HashMap<>();
+    HashMap<String, DeliveryPartner> deliveryPartner_db = new HashMap<>();
 
 
     // Partner and Order Assignment
@@ -27,12 +27,12 @@ public class OrderRepository {
 
     // Addning new Delivery Partner
     public void addPartner(String partnerId){
-        del_part_db.put(partnerId,new DeliveryPartner(partnerId));
+        deliveryPartner_db.put(partnerId,new DeliveryPartner(partnerId));
     }
 
     //Adding pair of Order and Delivery Partner by their ID
     public void addOrderPartnerPair(String orderId, String partnerId){
-        if(order_db.containsKey(orderId) && del_part_db.containsKey(partnerId)){
+        if(order_db.containsKey(orderId) && deliveryPartner_db.containsKey(partnerId)){
             orderPartnerDb.put(orderId,partnerId); // Assigning 1 order to 1 partner only.
 
             ArrayList<String>  orders = new ArrayList();
@@ -43,7 +43,7 @@ public class OrderRepository {
             partnerOrders_db.put(partnerId,orders);
 
             // Increment the No of orders for that partner
-            DeliveryPartner partner = del_part_db.get(partnerId);
+            DeliveryPartner partner = deliveryPartner_db.get(partnerId);
             partner.setNumberOfOrders(orders.size());
         }
     }
@@ -56,7 +56,7 @@ public class OrderRepository {
 
     //Fetching Partner by Id
     public DeliveryPartner getPartner(String partnerId){
-        return del_part_db.get(partnerId);
+        return deliveryPartner_db.get(partnerId);
     }
 
     // Display Count of Orders by Partner Id
@@ -111,7 +111,7 @@ public class OrderRepository {
 
     // Deleting Partner by Id and Un-assigning all his orders
     public void deletePartner(String partnerId){
-       del_part_db.remove(partnerId);
+       deliveryPartner_db.remove(partnerId);
        ArrayList<String> orders = partnerOrders_db.get(partnerId);
        partnerOrders_db.remove(partnerId);
        for(String orderId : orders){
@@ -125,7 +125,7 @@ public class OrderRepository {
       String partnerId = orderPartnerDb.get(orderId);
       orderPartnerDb.remove(orderId);
       partnerOrders_db.get(partnerId).remove(orderId);
-      del_part_db.get(partnerId).setNumberOfOrders(partnerOrders_db.get(partnerId).size());
+      deliveryPartner_db.get(partnerId).setNumberOfOrders(partnerOrders_db.get(partnerId).size());
 
     }
 }
