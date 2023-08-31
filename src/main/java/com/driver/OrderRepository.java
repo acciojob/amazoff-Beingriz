@@ -18,7 +18,7 @@ public class OrderRepository {
     // Partner and Order Assignment
     Map<String , String> orderPartnerDb = new HashMap<>();
     // Creating Pari Database
-    HashMap<String, ArrayList<String>> pair_db = new HashMap<>();
+    HashMap<String, ArrayList<String>> partnerOrders_db = new HashMap<>();
 
     // Adding New Order
     public void addOrder(Order order){
@@ -36,11 +36,11 @@ public class OrderRepository {
             orderPartnerDb.put(orderId,partnerId); // Assigning 1 order to 1 partner only.
 
             ArrayList<String>  orders = new ArrayList();
-            if(pair_db.containsKey(partnerId)){
-                orders = pair_db.get(partnerId);
+            if(partnerOrders_db.containsKey(partnerId)){
+                orders = partnerOrders_db.get(partnerId);
             }
             orders.add(orderId);
-            pair_db.put(partnerId,orders);
+            partnerOrders_db.put(partnerId,orders);
 
             // Increment the No of orders for that partner
             DeliveryPartner partner = del_part_db.get(partnerId);
@@ -62,12 +62,12 @@ public class OrderRepository {
     // Display Count of Orders by Partner Id
     public int countOrdersbyPartner(String partnerId){
 
-        return pair_db.get(partnerId).size();
+        return partnerOrders_db.get(partnerId).size();
     }
 
     //Displaying List of Orders by Partner Id
     public ArrayList<String> ordersByPartnerID(String partnerId){
-        return pair_db.get(partnerId);
+        return partnerOrders_db.get(partnerId);
     }
 
     // Displaying List of Orders
@@ -90,7 +90,7 @@ public class OrderRepository {
     public  int getOrdersLeftAfterGivenTimeByPartnerId(int time, String partnerId){
         int count = 0;
         // Get the list of Orders of this Partner
-        ArrayList<String> orders = pair_db.get(partnerId);
+        ArrayList<String> orders = partnerOrders_db.get(partnerId);
         for (String orderId: orders ) {
             int deliveryTime = order_db.get(orderId).getDeliveryTime();
             if(deliveryTime > time) count++;
@@ -101,7 +101,7 @@ public class OrderRepository {
     // Last order time by Partner Id
     public int getLastDeliveryTimeByPartnerId(String partnerId){
         int maxTime = 0;
-        ArrayList<String> orders = pair_db.get(partnerId);
+        ArrayList<String> orders = partnerOrders_db.get(partnerId);
         for(String orderId : orders){
             int currTime = order_db.get(orderId).getDeliveryTime();
             maxTime = Math.max(currTime, maxTime);
@@ -112,8 +112,8 @@ public class OrderRepository {
     // Deleting Partner by Id and Un-assigning all his orders
     public void deletePartner(String partnerId){
        del_part_db.remove(partnerId);
-       ArrayList<String> orders = pair_db.get(partnerId);
-       pair_db.remove(partnerId);
+       ArrayList<String> orders = partnerOrders_db.get(partnerId);
+       partnerOrders_db.remove(partnerId);
        for(String orderId : orders){
            orderPartnerDb.remove(orderId);
        }
@@ -124,8 +124,8 @@ public class OrderRepository {
       order_db.remove(orderId);
       String partnerId = orderPartnerDb.get(orderId);
       orderPartnerDb.remove(orderId);
-      pair_db.get(partnerId).remove(orderId);
-      del_part_db.get(partnerId).setNumberOfOrders(pair_db.get(partnerId).size());
+      partnerOrders_db.get(partnerId).remove(orderId);
+      del_part_db.get(partnerId).setNumberOfOrders(partnerOrders_db.get(partnerId).size());
 
     }
 }
